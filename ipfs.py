@@ -6,7 +6,7 @@ def pin_to_ipfs(data):
 	url = "https://api.pinata.cloud/pinning/pinJSONToIPFS"
 	headers = {
 		'pinata_api_key': '34cd47ef1ef4e03e3c95',
-		'pinata_secret_api_key': 'd2477409a29932dba2eda98ac6b9cd9842cebbd4cce8af6218bd02a248e1ad58
+		'pinata_secret_api_key': 'd2477409a29932dba2eda98ac6b9cd9842cebbd4cce8af6218bd02a248e1ad58'
 
 	}
 	payload = {
