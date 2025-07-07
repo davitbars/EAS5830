@@ -63,7 +63,7 @@ def is_ordered_block(w3, block_num):
 	for tx in block.transactions:
 		if tx.get('type') == '0x2' or (tx.get('maxFeePerGas') is not None and tx.get('maxPriorityFeePerGas') is not None):
 			if base_fee is None:
-				retrn False
+				return False
 			max_priority = tx['maxPriorityFeePerGas']
 			max_fee = tx['maxFeePerGas']
 			priority_fee = min(max_priority, max_fee - base_fee)
@@ -73,8 +73,7 @@ def is_ordered_block(w3, block_num):
 		priority_fees.append(priority_fee)
 
 
-	ordered == sorted(priority_fees, reverse=True)
-	return ordered
+	return priority_fees == sorted(priority_fees, reverse=True)
 
 
 def get_contract_values(contract, admin_address, owner_address):
