@@ -1,5 +1,6 @@
 from web3 import Web3
 import eth_account
+from eth_account import Account
 from eth_account.messages import encode_defunct
 
 
@@ -13,7 +14,7 @@ def sign(m):
 
     # TODO sign the given message "m"
     message = encode_defunct(text=m)  # Encode the message
-    signed_message = Account.signed_message(message, private_key)  # Sign the message
+    signed_message = Account.sign_message(message, private_key)  # Sign the message
 
 
     """You can save the account public/private keypair that prints in the next section
@@ -27,7 +28,6 @@ def sign(m):
     # print(f"signed message {signed_message}\nr= {signed_message.r}\ns= {signed_message.s}")
 
     return public_key, signed_message
-
 
 def verify(m, public_key, signed_message):
     w3 = Web3()
