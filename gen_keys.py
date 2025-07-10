@@ -22,7 +22,7 @@ def sign_message(challenge, filename="secret_key.txt"):
     # TODO recover your account information for your private key and sign the given challenge
     # Use the code from the signatures assignment to sign the given challenge
     acct = eth_account.Account.from_key(key)
-
+    eth_addr = acct.address
     signed_message = eth_account.Account.sign_message(message, private_key=key)
     recovered = eth_account.Account.recover_message(message, signature = signed_message.signature)
 
