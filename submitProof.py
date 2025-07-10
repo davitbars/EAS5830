@@ -151,7 +151,7 @@ def send_signed_msg(proof, random_leaf):
       'from':acct.address, 
       'nonce':w3.eth.get_transaction_count(acct.address),
       'gas':50000,
-      'gasPrice':w3.eth.gasPrice
+      'gasPrice':w3.eth.gas_price
     })
     signed_txn = w3.eth.account.sign_transaction(txn, private_key=acct.key)
     tx_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
