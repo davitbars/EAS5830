@@ -28,18 +28,19 @@ contract Destination is AccessControl {
 				onlyRole(CREATOR_ROLE) 
 				returns (address) 
 		{
-				require(underlying_tokens[_underlying_token] == address(0), "Token already created");
+				require(wrapped_tokens[_underlying_token] == address(0), "Token already created");
 
 				BridgeToken newToken = new BridgeToken(_underlying_token, name, symbol, address(this));
 				address wrapped = address(newToken);
 
-				underlying_tokens[_underlying_token] = wrapped;
-				wrapped_tokens[wrapped] = _underlying_token;
+				wrapped_tokens[_underlying_token] = wrapped;
+				underlying_tokens[wrapped] = _underlying_token;
 				tokens.push(wrapped);
 
 				emit Creation(_underlying_token, wrapped);
 				return wrapped;
 		}
+
 
 
     function wrap(address _underlying_token, address _recipient, uint256 _amount) 
