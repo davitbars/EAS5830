@@ -35,19 +35,6 @@ def merkle_assignment():
     # Sign the challenge to prove to the grader you hold the account
     addr, sig = sign_challenge(challenge)
 
-    # if sign_challenge_verify(challenge, addr, sig):
-    #     tx_hash = '0x'
-    #     # TODO, when you are ready to attempt to claim a prime (and pay gas fees),
-    #     #  complete this method and run your code with the following line un-commented
-    #     print(f"Leaf index: {random_leaf_index}")
-    #     print(f"Prime: {primes[random_leaf_index]}")
-    #     print(f"Leaf (bytes32): {leaves[random_leaf_index].hex()}")
-    #     print("Proof:")
-    #     for p in proof:
-    #       print(p.hex())
-
-    #     tx_hash = send_signed_msg(proof, leaves[random_leaf_index])
-    #     print(f"Submitted claim tx: {tx_hash}")
     if sign_challenge_verify(challenge, addr, sig):
         # Debug: Recompute root from proof
         computed_hash = leaf
@@ -87,7 +74,6 @@ def generate_primes(num_primes):
     """
     primes_list = []
 
-    #TODO YOUR CODE HERE
     candidate = 2
     while len(primes_list) < num_primes:
       is_prime = all(candidate % p != 0 for p in primes_list if p * p <= candidate)
