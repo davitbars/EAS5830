@@ -154,7 +154,7 @@ def send_signed_msg(proof, random_leaf):
       'gasPrice':w3.eth.gas_price
     })
     signed_txn = w3.eth.account.sign_transaction(txn, private_key=acct.key)
-    tx_hash = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
+    tx_hash = w3.eth.send_raw_transaction(signed_txn.raw_transaction)
 
     return w3.to_hex(tx_hash)
 
