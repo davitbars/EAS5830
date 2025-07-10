@@ -38,6 +38,13 @@ def merkle_assignment():
         tx_hash = '0x'
         # TODO, when you are ready to attempt to claim a prime (and pay gas fees),
         #  complete this method and run your code with the following line un-commented
+        print(f"Leaf index: {random_leaf_index}")
+        print(f"Prime: {primes[random_leaf_index]}")
+        print(f"Leaf (bytes32): {leaves[random_leaf_index].hex()}")
+        print("Proof:")
+        for p in proof:
+          print(p.hex())
+
         tx_hash = send_signed_msg(proof, leaves[random_leaf_index])
         print(f"Submitted claim tx: {tx_hash}")
 
