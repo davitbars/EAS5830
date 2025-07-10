@@ -27,6 +27,7 @@ def merkle_assignment():
     # Select a random leaf and create a proof for that leaf
     #TODO generate a random index from primes to claim (0 is already claimed)
     random_leaf_index = random.randint(0, len(leaves)-1)
+    leaf = leaves[random_leaf_index]
     proof = prove_merkle(tree, random_leaf_index)
 
     # This is the same way the grader generates a challenge for sign_challenge()
@@ -34,19 +35,49 @@ def merkle_assignment():
     # Sign the challenge to prove to the grader you hold the account
     addr, sig = sign_challenge(challenge)
 
-    if sign_challenge_verify(challenge, addr, sig):
-        tx_hash = '0x'
-        # TODO, when you are ready to attempt to claim a prime (and pay gas fees),
-        #  complete this method and run your code with the following line un-commented
-        print(f"Leaf index: {random_leaf_index}")
-        print(f"Prime: {primes[random_leaf_index]}")
-        print(f"Leaf (bytes32): {leaves[random_leaf_index].hex()}")
-        print("Proof:")
-        for p in proof:
-          print(p.hex())
+    # if sign_challenge_verify(challenge, addr, sig):
+    #     tx_hash = '0x'
+    #     # TODO, when you are ready to attempt to claim a prime (and pay gas fees),
+    #     #  complete this method and run your code with the following line un-commented
+    #     print(f"Leaf index: {random_leaf_index}")
+    #     print(f"Prime: {primes[random_leaf_index]}")
+    #     print(f"Leaf (bytes32): {leaves[random_leaf_index].hex()}")
+    #     print("Proof:")
+    #     for p in proof:
+    #       print(p.hex())
 
-        tx_hash = send_signed_msg(proof, leaves[random_leaf_index])
-        print(f"Submitted claim tx: {tx_hash}")
+    #     tx_hash = send_signed_msg(proof, leaves[random_leaf_index])
+    #     print(f"Submitted claim tx: {tx_hash}")
+    if sign_challenge_verify(challenge, addr, sig):
+        # Debug: Recompute root from proof
+        computed_hash = leaf
+        for sibling in proof:
+            computed_hash = hash_pair(computed_hash, sibling)
+
+        print(f"\n[DEBUG] Leaf index: {random_leaf_index}")
+        print(f"[DEBUG] Prime: {primes[random_leaf_index]}")
+        print(f"[DEBUG] Leaf (bytes32): {leaf.hex()}")
+        print("[DEBUG] Proof:")
+        for p in proof:
+            print(p.hex())
+        print(f"[DEBUG] Computed Merkle root from proof: {computed_hash.hex()}")
+        print(f"[DEBUG] Merkle tree root: {tree[-1][0].hex()}")
+
+        # Compare against on-chain root
+        chain = 'bsc'
+        _, abi = get_contract_info(chain)
+        w3 = connect_to(chain)
+        address, _ = get_contract_info(chain)
+        contract = w3.eth.contract(address=address, abi=abi)
+        root_on_chain = contract.functions.root().call()
+        print(f"[DEBUG] On-chain Merkle root: {root_on_chain.hex()}")
+
+        if computed_hash.hex() != root_on_chain.hex():
+            print("[ERROR] Computed root from proof does not match on-chain root. Aborting submission.")
+            return
+
+        tx_hash = send_signed_msg(proof, leaf)
+        print(f"[RESULT] Submitted claim tx: {tx_hash}")
 
 
 def generate_primes(num_primes):
@@ -91,15 +122,14 @@ def build_merkle(leaves):
     #TODO YOUR CODE HERE
     tree = [leaves]
     while len(tree[-1]) > 1:
-      level = []
-      current = tree[-1]
-      for i in range(0, len(current), 2):
-        left = current[i]
-        right = current[i+1] if i+1 < len(current) else current[i]
-        parent = hash_pair(left, right)
-        level.append(parent)
-      tree.append(level)
-
+        level = []
+        current = tree[-1]
+        for i in range(0, len(current), 2):
+            left = current[i]
+            right = current[i + 1] if i + 1 < len(current) else current[i]
+            parent = hash_pair(left, right)
+            level.append(parent)
+        tree.append(level)
     return tree
 
 
@@ -113,10 +143,10 @@ def prove_merkle(merkle_tree, random_indx):
     merkle_proof = []
     idx = random_indx
     for level in merkle_tree[:-1]:
-      sibling_idx = idx ^ 1
-      if sibling_idx < len(level):
-        merkle_proof.append(level[sibling_idx])
-      idx //=2
+        sibling_idx = idx ^ 1
+        if sibling_idx < len(level):
+            merkle_proof.append(level[sibling_idx])
+        idx //= 2
     return merkle_proof
 
 
@@ -129,14 +159,10 @@ def sign_challenge(challenge):
         claimed a prime
     """
     acct = get_account()
-
     addr = acct.address
     eth_sk = acct.key
-
-    # TODO YOUR CODE HERE
     message = eth_account.messages.encode_defunct(text=challenge)
-    eth_sig_obj = eth_account.Account.sign_message(message, private_key = eth_sk)
-
+    eth_sig_obj = eth_account.Account.sign_message(message, private_key=eth_sk)
     return addr, eth_sig_obj.signature.hex()
 
 
@@ -147,22 +173,18 @@ def send_signed_msg(proof, random_leaf):
         on the contract
     """
     chain = 'bsc'
-
     acct = get_account()
     address, abi = get_contract_info(chain)
     w3 = connect_to(chain)
-
-    # TODO YOUR CODE HERE
     contract = w3.eth.contract(address=address, abi=abi)
     txn = contract.functions.submit(proof, random_leaf).build_transaction({
-      'from':acct.address, 
-      'nonce':w3.eth.get_transaction_count(acct.address),
-      'gas':200000,
-      'gasPrice':w3.eth.gas_price
+        'from': acct.address,
+        'nonce': w3.eth.get_transaction_count(acct.address),
+        'gas': 200000,
+        'gasPrice': w3.eth.gas_price
     })
     signed_txn = w3.eth.account.sign_transaction(txn, private_key=acct.key)
     tx_hash = w3.eth.send_raw_transaction(signed_txn.raw_transaction)
-
     return w3.to_hex(tx_hash)
 
 
