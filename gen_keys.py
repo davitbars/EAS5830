@@ -26,8 +26,7 @@ def sign_message(challenge, filename="secret_key.txt"):
     signed_message = eth_account.Account.sign_message(message, private_key=key)
     recovered = eth_account.Account.recover_message(message, signature = signed_message.signature)
 
-
-    assert eth_account.Account.recover_message(message,signature=signed_message.signature.hex()) == eth_addr, f"Failed to sign message properly"
+    assert recovered == eth_addr, f"Failed to sign message properly: got {recovered}, expected {eth_addr}"
 
     #return signed_message, account associated with the private key
     return signed_message, eth_addr
