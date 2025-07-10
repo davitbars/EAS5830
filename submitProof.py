@@ -76,8 +76,7 @@ def convert_leaves(primes_list):
     for p in primes_list:
       b = p.to_bytes((p.bit_length()+7)//8, byteorder='big')
       b32 = b.rjust(32, b'\x00')
-      leaf_hash = Web3.solidity_keccak(['bytes32'], [b32])
-      leaves.append(leaf_hash)
+      leaves.append(b32)
     return leaves
 
 
