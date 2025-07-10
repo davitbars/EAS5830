@@ -53,8 +53,8 @@ contract Destination is AccessControl {
 	{
 		require(underlying_tokens[_underlying_token] == address(0), "Token already registered");
 
-		BridgeToken wrapped = new BridgeToken(_underlying_token, name, symbol);
-		address wrappedAddress = address(wrapped);
+			BridgeToken wrapped = new BridgeToken(_underlying_token, name, symbol, address(this));
+			address wrappedAddress = address(wrapped);
 
 		underlying_tokens[_underlying_token] = wrappedAddress;
 		wrapped_tokens[wrappedAddress] = _underlying_token;
@@ -65,5 +65,3 @@ contract Destination is AccessControl {
 	}
 
 }
-
-
